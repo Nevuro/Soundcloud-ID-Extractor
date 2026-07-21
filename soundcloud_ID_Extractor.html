@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>SoundCloud SRC ID Extractor</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 20px;
+    background: #f4f4f4;
+}
+
+textarea {
+    width: 100%;
+    height: 220px;
+    padding: 10px;
+}
+
+button {
+    margin-top: 15px;
+    padding: 12px 25px;
+    background: #ff5500;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+#result {
+    margin-top: 20px;
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.id {
+    font-size: 24px;
+    color: #ff5500;
+    font-weight: bold;
+}
+</style>
+
+</head>
+
+<body>
+
+<h2>SoundCloud Embed ID Extractor</h2>
+
+<textarea id="input" placeholder="Paste SoundCloud iframe embed code"></textarea>
+
+<button onclick="extractID()">Extract ID</button>
+
+<div id="result">
+    Waiting...
+</div>
+
+
+<script>
+
+function extractID() {
+
+    let embed = document.getElementById("input").value;
+
+
+    // 1. Extract only iframe src
+    let srcMatch = embed.match(/src=["']([^"']+)["']/i);
+
+    if (!srcMatch) {
+        document.getElementById("result").innerHTML =
+        "❌ No iframe src found";
+        return;
+    }
+
+
+    let src = srcMatch[1];
+
+
+    // 2. Extract the URL parameter
+    let urlMatch = src.match(/[?&]url=([^&]+)/);
+
+    if (!urlMatch) {
+        document.getElementById("result").innerHTML =
+        "❌ No SoundCloud URL found";
+        return;
+    }
+
+
+    let soundcloudURL = urlMatch[1];
+
+
+    // 3. Decode twice
+    let decoded = soundcloudURL;
+
+    try {
+        decoded = decodeURIComponent(decoded);
+        decoded = decodeURIComponent(decoded);
+    } catch(e) {
+        console.log(e);
+    }
+
+
+    // 4. Extract ID
+    let id = "";
+    let type = "";
+
+
+    let playlist = decoded.match(/playlists:(\d+)/);
+
+    if (playlist) {
+        id = playlist[1];
+        type = "Playlist";
+    }
+
+
+    if (!id) {
+        let track = decoded.match(/tracks[/:](\d+)/);
+
+        if (track) {
+            id = track[1];
+            type = "Track";
+        }
+    }
+
+
+    if (id) {
+
+        document.getElementById("result").innerHTML =
+        `
+        <b>Type:</b> ${type}<br><br>
+        <b>SoundCloud ID:</b><br>
+        <span class="id">${id}</span>
+        `;
+
+    } else {
+
+        document.getElementById("result").innerHTML =
+        "❌ ID not found after decoding:<br>" + decoded;
+
+    }
+
+}
+
+</script>
+
+</body>
+</html>
