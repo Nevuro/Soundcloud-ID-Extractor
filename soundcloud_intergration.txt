@@ -1,5 +1,5 @@
 
-### to put soundcloud music into web app / html copy the code below ###
+### to put soundcloud music copy the code below ###
 
 <!-- SOUNDTRACK PLAYER -->
 <script src="https://w.soundcloud.com/player/api.js"></script>
